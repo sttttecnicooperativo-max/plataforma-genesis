@@ -31,22 +31,45 @@ function iniciarReloj() {
     }, 1000);
 }
 
-// CÁMARA (Con protección de errores)
-async function iniciarCamara(){
+// CÁMARA (Mejorada)
+async function iniciarCamara() {
     const video = document.getElementById("video");
     const estado = document.getElementById("estado");
     
-    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        if(estado) estado.innerHTML = "🔴 TU NAVEGADOR NO SOPORTA CÁMARA";
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        if (estado) estado.innerHTML = "🔴 TU NAVEGADOR NO SOPORTA CÁMARA";
         return;
     }
     
-    try{
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        if(video) video.srcObject = stream;
-    } catch(error){
-        console.warn("Cámara bloqueada o no encontrada", error);
-        if(estado) estado.innerHTML = "⚠️ CÁMARA DESACTIVADA";
+    try {
+        // Configuramos restricciones estándar
+        const constraints = { 
+            video: { 
+                width: { ideal: 1280 }, 
+                height: { ideal: 720 },
+                facingMode: "user" 
+            } 
+        };
+        
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        
+        if (video) {
+            video.srcObject = stream;
+            // Forzamos la reproducción por si el autoplay falla
+            video.play().catch(e => console.error("Error al intentar reproducir el video:", e));
+            if (estado) estado.innerHTML = "🟢 CÁMARA ACTIVA";
+        }
+    } catch (error) {
+        console.error("Detalle del error de cámara:", error);
+        if (estado) {
+            if (error.name === "NotAllowedError") {
+                estado.innerHTML = "⚠️ PERMISO DENEGADO. Verifica el candado.";
+            } else if (error.name === "NotFoundError") {
+                estado.innerHTML = "⚠️ CÁMARA NO ENCONTRADA.";
+            } else {
+                estado.innerHTML = "⚠️ ERROR: " + error.name;
+            }
+        }
     }
 }
 

@@ -43,14 +43,14 @@ async function iniciarCamara() {
     
     try {
         // Configuramos restricciones estándar
-        const constraints = { 
-            video: { 
-                width: { ideal: 1280 }, 
+        const constraints = {
+            video: {
+                width: { ideal: 1280 },
                 height: { ideal: 720 },
-                facingMode: "user" 
-            } 
+                facingMode: "user"
+            }
         };
-        
+
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         
         if (video) {
